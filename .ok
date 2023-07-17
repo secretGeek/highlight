@@ -1,3 +1,2 @@
 code . .\README.md
 show-code '$myVariable = "This is code on $env:COMPUTERNAME";'
-compare: sgdm . C:\Users\leonb\Dropbox\secretGeek\all_someday_projects\git_playground\highlight
