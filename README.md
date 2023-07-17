@@ -6,7 +6,7 @@ This is a group of powershell cmdLets that let you syntax highlight Powershell C
 
 Example:
 
-	show-code "dir | % { $_.Name } "
+	show-code 'dir | % { $_.Name } '
 
 Will display the code, `dir | % { $_.Name }`, with syntax highlighting.
 
