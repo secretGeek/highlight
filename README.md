@@ -10,12 +10,13 @@ Example:
 
 Will display the code, `dir | % { $_.Name }`, with syntax highlighting.
 
+![showCodeExample1](showCodeExample1.png)
+
 The `Show-Code` function itself is very simple, and it's only significant line of code is this:
 
 	Get-Token $code | Show-Token -debugMode:$debugMode;
 
 i.e., it tokenizes the code that is passed to it, and asks the `Show-Token` cmdLet to write the tokens with syntax highlighting.
-
 
 ## Get-Token
 
@@ -24,6 +25,26 @@ i.e., it tokenizes the code that is passed to it, and asks the `Show-Token` cmdL
 	$result = [System.Management.Automation.Language.Parser]::ParseInput($code, [ref]$ParserTokens, [ref]$null) | Out-Null;
 
 That is, all of its work is done by the `ParseInput` method in `Automation.Language.Parser`. This is a nifty tokenizer, built right into Powershell.
+
+You could use `get-token` by itself to inspect the tokens returned from parsing any arbitrary piece of Powershell -- e.g.
+
+	get-token 'dir | % { $_.Name }' | Format-Table
+
+| Text | TokenFlags | Kind | HasError | Extent |
+|------|------------|------|----------|--------|
+| `dir` | `CommandName` | `Identifier` | `False` | `dir` |
+| `\|` | `SpecialOperator, ParseModeInvariant` | `Pipe` | `False` | `\|` |
+| `%` | `BinaryPrecedenceMultiply, BinaryOperator, CommandName, CanConstantFold` | `Rem` | `False` | `%` |
+| `{` | `ParseModeInvariant` | `LCurly` | `False` | `{` |
+| `$_` | `None` | `Variable` | `False` | `$_` |
+| `.` | `SpecialOperator, DisallowedInRestrictedMode` | `Dot` | `False` | `.` |
+| `Name` | `MemberName` | `Identifier` | `False` | `Name` |
+| `}` | `ParseModeInvariant` | `RCurly` | `False` | `}` |
+|     | `ParseModeInvariant` | `EndOfInput` | `False` | |
+
+Screenshot:
+
+![Screenshot of the above code and results table](getTokenFormatTableExample.png)
 
 ## Show-Token
 
