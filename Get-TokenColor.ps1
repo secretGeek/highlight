@@ -1,26 +1,5 @@
 
-## THEME definition
-#
-# Consider: These variables can be placed in a separate "Highlight_Theme.ps1" file, which is dotted.
-# Thus, easy to modify theme -- and/or an alternative file could be chosen by a "Theme Selector"
-# (For full theming there would probably also be a single background color, set/reset at the top level)
-#
-$h_NumberColor = [System.ConsoleColor]::White;
-$h_VariableColor = [System.ConsoleColor]::Cyan; # Controversial. Some would have it Green;
-$h_ParameterColor = [System.ConsoleColor]::DarkGray;
-$h_CommentColor = [System.ConsoleColor]::Green;
-$h_StringColor = [System.ConsoleColor]::DarkCyan;
-$h_OperatorColor = [System.ConsoleColor]::DarkGray;
-$h_CommandColor = [System.ConsoleColor]::Yellow;
-$h_TypeNameColor = [System.ConsoleColor]::Gray;
-$h_MemberColor = [System.ConsoleColor]::White;
-$h_KeyWordColor = [System.ConsoleColor]::Green;
-$h_IdentifierColor = [System.ConsoleColor]::Gray;
-$h_GenericColor = [System.ConsoleColor]::Gray;
-$h_RedirectionOperatorColor = [System.ConsoleColor]::White;
-$h_UnrecognizedColor = [System.ConsoleColor]::Red;
-
-# ^^ Theme.
+. (Join-Path $PSScriptRoot "HighlightTheme.ps1")
 
 function Get-TokenColor(
     [System.Management.Automation.Language.TokenKind]$tokenKind,

@@ -39,7 +39,7 @@ function Show-Name {
         #Split it into words and use the two colors.
         #(Split-Pascalwise $Name | ForEach-Object { Write-Host "$_" -N -ForegroundColor $(if ($i++ % 2 -eq 0) { "Blue" } else { "DarkBlue" }); });
         Split-Pascalwise $Name | ForEach-Object {
-            if ($debugMode) { Write-Host "i:$($private:i)" -NoNewline; }
+            if ($debugMode) { Write-Host "i:$($private:i)" -NoNewline -f blue; }
             Write-Host "$_" -NoNewline -ForegroundColor $(if ($private:i++ % 2 -eq 0) { $ForeGroundColor } else { $SecondForeGroundColor });
         };
     }

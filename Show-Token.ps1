@@ -8,7 +8,7 @@ function Write-Scrap($scrap, $token, $debugMode) {
 	$quoteColor = [System.ConsoleColor]::Cyan;
 	$dollarColor = [System.ConsoleColor]::Gray;
 	$secondTokenColor = [System.ConsoleColor]::DarkCyan;
-	$commentHashColor = [System.ConsoleColor]::Green;
+	$commentHashColor = [System.ConsoleColor]::DarkGreen;
 
 	# Controversial! Write '$' and '#' (at start of Variable and Comment respectively)
 	#  in a **different** color to the rest of the variable/comment!
@@ -33,6 +33,19 @@ function Write-Scrap($scrap, $token, $debugMode) {
 		Write-Host '#' -ForegroundColor $commentHashColor -NoNewline
 		Write-Host ($scrap.Substring(1)) -ForegroundColor $tokenColor -NoNewline
 	}
+	elseif ($token.Kind -eq [System.Management.Automation.Language.TokenKind]::Comment -and
+		$scrap -like '<#*') {
+		# it starts with <# ...
+		if ($scrap -like '*#>') {
+			# *and it ends with <#*
+			Write-Host '<#' -ForegroundColor $commentHashColor -NoNewline
+			Write-Host ($scrap.Substring(2, $scrap.length -4)) -ForegroundColor $tokenColor -NoNewline
+			Write-Host '#>' -ForegroundColor $commentHashColor -NoNewline
+		} else {
+			Write-Host '<#' -ForegroundColor $commentHashColor -NoNewline
+			Write-Host ($scrap.Substring(2)) -ForegroundColor $tokenColor -NoNewline
+		}
+	}
 	elseif (
 		($token.Kind -eq [System.Management.Automation.Language.TokenKind]::StringExpandable -or
 		$token.Kind -eq [System.Management.Automation.Language.TokenKind]::StringLiteral -or
@@ -45,6 +58,10 @@ function Write-Scrap($scrap, $token, $debugMode) {
 		$scrap -like '*@')) {
 		# Controversial: Write quote characters at start and end of strings in a different color.
 		# Even VS Code doesn't attempt this.
+
+		if ($debugMode) {
+			Write-Host "<# tk: $($token.Kind), Tf: $($token.TokenFlags) #>" -f DarkCyan -n;
+		}
 
 		if ($scrap -like '"*' -or $scrap -like '''*' -or $scrap -like '@*') {
 			# Starts with a quote, or a here-string '@' -- write the start character in special color
@@ -70,6 +87,9 @@ function Write-Scrap($scrap, $token, $debugMode) {
 	}
 	else {
 		# Regular way to write a token in a single color:
+		if ($debugMode) {
+			Write-Host "<# tk: $($token.Kind), Tf:  $($token.TokenFlags) #>" -f DarkGreen -n;
+		}
 		Write-Host ($scrap) -ForegroundColor $tokenColor -NoNewline;
 	}
 

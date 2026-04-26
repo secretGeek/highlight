@@ -7,9 +7,13 @@ function Show-Code {
 		[Parameter(ValueFromPipeline, ValueFromPipelineByPropertyName)]
 		[string]
 		$code = "",
-		$debugMode = $false
+		$debugMode = $false,
+		[switch]$trailingNewLine = $false
 	)
 	if ($code -eq "") { return; }
 
 	Get-Token $code | Show-Token -debugMode:$debugMode;
+	if ($trailingNewLine) {
+		wh "";
+	}
 }
