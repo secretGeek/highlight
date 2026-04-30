@@ -19,27 +19,25 @@ function Split-Pascalwise {
     }
 }
 
-
 function Show-Name {
     Param(
         [Parameter(Mandatory,
             ValueFromPipeline = $true,
-            HelpMessage = 'Name to be show',
+            HelpMessage = 'Name to be shown',
             Position = 0)]
         [String]$Name,
         [Alias("f")][System.ConsoleColor]$ForeGroundColor = [ConsoleColor]::Cyan,
         [Alias("s")][System.ConsoleColor]$SecondForeGroundColor = [ConsoleColor]::DarkCyan,
-        [Alias("N")][Switch]$NoNewLine = $null,
-        [bool]$debugMode = $false
+        [Alias("N")][Switch]$NoNewLine = $null
     )
     Begin {
         $private:i = 0;
     }
     Process {
-        #Split it into words and use the two colors.
-        #(Split-Pascalwise $Name | ForEach-Object { Write-Host "$_" -N -ForegroundColor $(if ($i++ % 2 -eq 0) { "Blue" } else { "DarkBlue" }); });
+        # Split it into words and alternate between the two colors.
         Split-Pascalwise $Name | ForEach-Object {
-            if ($debugMode) { Write-Host "i:$($private:i)" -NoNewline -f blue; }
+            #if ($debugMode) { Write-Host "i:$($private:i)" -NoNewline -f blue; }
+            Write-Debug "i:$($private:i)";
             Write-Host "$_" -NoNewline -ForegroundColor $(if ($private:i++ % 2 -eq 0) { $ForeGroundColor } else { $SecondForeGroundColor });
         };
     }

@@ -1,14 +1,10 @@
-
-. (Join-Path $PSScriptRoot "HighlightTheme.ps1")
+. (Join-Path (Join-Path $PSScriptRoot '..\Public') 'HighlightTheme.ps1')
 
 function Get-TokenColor(
     [System.Management.Automation.Language.TokenKind]$tokenKind,
-    [System.Management.Automation.Language.TokenFlags]$tokenFlags,
-    $debugMode = $false) {
+    [System.Management.Automation.Language.TokenFlags]$tokenFlags) {
 
-    if ($debugMode) {
-        Write-Host "<# tk: $tokenKind, Tf: $tokenFlags #>" -f DarkMagenta -n;
-    }
+    Write-Debug "<# tk: $tokenKind, Tf: $tokenFlags #>";
 
     # We need to test either, or both of these:
     # - [Enum]::GetValues([System.Management.Automation.Language.TokenKind])
@@ -120,7 +116,7 @@ function Get-TokenColor(
     }
 
     #  Unrecognised token... Was not colored....
-    Write-Host "`n****`n****`n<# TokenKind: $tokenKind, TokenFlags: $tokenFlags #>" -f red -n;
+    Write-Debug "`n****`n****`nUNRECOGNISED TOKEN`n<# TokenKind: $tokenKind, TokenFlags: $tokenFlags #>`n****";
 
     return $h_UnrecognizedColor;
 }

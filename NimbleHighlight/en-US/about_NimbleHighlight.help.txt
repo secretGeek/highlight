@@ -1,0 +1,24 @@
+TOPIC
+    about_NimbleHighlight
+
+SHORT DESCRIPTION
+    Syntax highlighting for PowerShell code
+
+LONG DESCRIPTION
+    Use the show-code function to display powershell code in the console with full syntax-highlighting
+
+FEATURES
+    - Highlight tokens
+    - Debug token output
+    - Pipeline support
+
+EXAMPLES
+    PS> Show-Code 'Write-Host "Hello $world"'
+
+    PS> Get-Content .\Show-Code.ps1 | % { show-code $_ -trailingNewLine:$true }
+
+NOTES
+    A fun way of highlighting powershell code snippets, in the console.
+
+RELATED LINKS
+    Show-Code

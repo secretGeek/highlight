@@ -1,34 +1,42 @@
 # Highlight
 
-This is a group of powershell cmdLets that let you syntax highlight Powershell Code, from powershell code and scripts.
+Here we have a PowerShell module for syntax highlighting PowerShell code, using PowerShell itself.
 
 ## Show-Code
 
-Example:
+## Usage
 
-	show-code 'dir | % { $_.Name }'
+Import the module:
+
+	Import-Module .\NimbleHighlight.psd1
+
+(Coming soon to PowerShellGallery, then it will be: `Import-Module NimbleHighlight`)
+
+Then call:
+
+	Show-Code 'dir | % { $_.Name }'
 
 Will display the code, `dir | % { $_.Name }`, with syntax highlighting.
 
 ![showCodeExample1](showCodeExample1.png)
 
-The `Show-Code` function itself is very simple, and it's only significant line of code is this:
+The `Show-Code` function itself is very simple, and its only significant line of code is this:
 
-	Get-Token $code | Show-Token -debugMode:$debugMode;
+	Get-Token $code | Show-Token;
 
-i.e., it tokenizes the code that is passed to it, and asks the `Show-Token` cmdLet to write the tokens with syntax highlighting.
+i.e., it tokenizes the code that is passed to it, and asks the `Show-Token` Cmdlet to write the tokens with syntax highlighting.
 
 ## Get-Token
 
-`Get-token` is also very simple -- it only has 1 significant line of code:
+`Get-Token` is also very simple -- it only has one significant line of code:
 
 	$result = [System.Management.Automation.Language.Parser]::ParseInput($code, [ref]$ParserTokens, [ref]$null) | Out-Null;
 
-That is, all of its work is done by the `ParseInput` method in `Automation.Language.Parser`. This is a nifty tokenizer, built right into Powershell.
+All of its work is done by the `ParseInput` method in `Automation.Language.Parser`. This is a nifty tokenizer, built right into PowerShell.
 
-You could use `get-token` by itself to inspect the tokens returned from parsing any arbitrary piece of Powershell -- e.g.
+You could use `Get-Token` by itself to inspect the tokens returned from parsing any arbitrary piece of PowerShell -- e.g.
 
-	get-token 'dir | % { $_.Name }' | Format-Table
+	Get-Token 'dir | % { $_.Name }' | Format-Table
 
 | Text | TokenFlags | Kind | HasError | Extent |
 |------|------------|------|----------|--------|
@@ -48,9 +56,9 @@ Screenshot:
 
 ## Show-Token
 
-Most of the work that `Show-Token` does is to do with special cases for "nested tokens". Once it knows the exact token or nested-token to be shown, it passes the result to a function `Write-Scrap` that then has to decide on the actual colors.
+Most of the work that `Show-Token` does involves special cases for "nested tokens". Once it knows the exact token or nested-token to be shown, it passes the result to a function `Write-Scrap` that then has to decide on the actual colors.
 
-The following comment from `Show-Token` explains the tricky business of nested tokens. If we ignored the concept of Nested tokens, then a string such as `"Hello $world"` would be written in a single color -- the `$world` would be treated as a regular piece of text, not as an embedded expresion. Here is the comment to describe nested tokens:
+The following comment from `Show-Token` explains the tricky business of nested tokens. If we ignored the concept of Nested tokens, then a string such as `"Hello $world"` would be written in a single color -- the `$world` would be treated as a regular piece of text, not as an embedded expression. Here is the comment to describe nested tokens:
 
 
 	# NESTED TOKENS ARE FUN
@@ -91,24 +99,13 @@ Versus how this highlighter would do the same:
 
 ![showCodeNameExample](showCodeNameExample.png)
 
-
-## To use these functions...
-
-"Dot" the Show-Code file.
-
-	. .\Show-Code.ps1
-
-It will, in turn, dot the `Get-Token.ps1` and `Show-Token.ps1` files that it depends upon. And `Show-Token` will dot the `Get-TokenColor.ps1` and `Show-Name.ps1` files that it depends upon.
-
-So you can use "All of it" by dotting "Show-Code" -- or just dot the part you need, if you only want "Show-Token" or "Get-TokenColor" or "Show-Name".
-
 ## Bonus -- PascalCase Word Splitter: Split-Pascalwise
 
-To facilitate the coloring of words in camelCase and PascalCase variable names, there is handy cmdLet included:
+To facilitate the coloring of words in `camelCase` and `PascalCase` variable names, there is a handy Cmdlet included:
 
 - `Split-Pascalwise`
 
-Given a string that contains a mixed of upper and lower case letters, it will split it into an array of word-like strings.
+Given a string that contains a mix of UPPER and lower case letters, it will split it into an array of word-like strings.
 
 ```powershell
 > Split-Pascalwise 'ThisIsMyVariable123Help'
@@ -120,7 +117,7 @@ Variable
 Help
 ```
 
-If you can't find some fun uses for a function like that, I honestly don't know what to tell you.
+If you can't find some fun uses for a function like that, yours was a wasted life.
 
 And since you're very curious (and why wouldn't you be) -- I'll share the regular expression at the heart of this thing.
 
@@ -128,7 +125,7 @@ And since you're very curious (and why wouldn't you be) -- I'll share the regula
 return ($_.ToString() -creplace '(?<!^)([A-Z0-9:_][a-z]|(?<=[a-z])[A-Z0-9:_])', ' $&').Split($null);
 ```
 
-Note that it is case-sensitive (`creplace`) and it treats any switch from lower-case letters to "capital letters or numbers or ':' or '_'" as indicating a word boundary.
+Note that it is case-sensitive (`creplace`) and it treats *any* switch from lower-case letters to capital letters or to numbers or to ':' or to '_' as indicating a word boundary.
 
 Some of the tricky cases that this treats as intended are:
 
@@ -158,3 +155,23 @@ But this also means, a following word that doesn't start with a capital, might '
 3guid
 ```
 
+# Remember to quote your code appropriately
+
+When asking `Show-Code` to show some code, remembering you are passing it a string, and this may mean that you need to escape some parts of the string, to get the intended effect.
+
+For example, look at the unexpected result we get here:
+
+	> show-code "hello $world"
+	hello 
+
+Where did the `$world` go? It got "evaluated" before it was passed to the `show-code` function!
+
+To show the expected code, in this situation, we have a number of options. For example:
+
+	> show-code "hello `$world"
+	hello $world
+
+... we escaped the `$` sign by prefixing it with a backtick. Or we could use single-quotes, so the `$` won't be evaluated:
+
+	> show-code 'hello $world'
+	hello $world

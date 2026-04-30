@@ -1,5 +1,5 @@
-. (Join-Path $PSScriptRoot "Get-Token.ps1")
-. (Join-Path $PSScriptRoot "Show-Token.ps1")
+. (Join-Path (Join-Path $PSScriptRoot '..\Private') 'Get-Token.ps1')
+. (Join-Path (Join-Path $PSScriptRoot '..\Private') 'Show-Token.ps1')
 
 function Show-Code {
 	[CmdletBinding()]
@@ -7,13 +7,12 @@ function Show-Code {
 		[Parameter(ValueFromPipeline, ValueFromPipelineByPropertyName)]
 		[string]
 		$code = "",
-		$debugMode = $false,
 		[switch]$trailingNewLine = $false
 	)
 	if ($code -eq "") { return; }
 
-	Get-Token $code | Show-Token -debugMode:$debugMode;
+	Get-Token $code | Show-Token;
 	if ($trailingNewLine) {
-		wh "";
+		Write-Host "";
 	}
 }

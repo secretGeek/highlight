@@ -3,8 +3,8 @@
 
 
 # Write a scrap of text, that is part of a token (may be the entire token)
-function Write-Scrap($scrap, $token, $debugMode) {
-	$tokenColor = (Get-TokenColor $token.Kind $token.TokenFlags $debugMode);
+function Write-Scrap($scrap, $token) {
+	$tokenColor = (Get-TokenColor $token.Kind $token.TokenFlags);
 	$quoteColor = [System.ConsoleColor]::Cyan;
 	$dollarColor = [System.ConsoleColor]::Gray;
 	$secondTokenColor = [System.ConsoleColor]::DarkCyan;
@@ -18,7 +18,7 @@ function Write-Scrap($scrap, $token, $debugMode) {
 		Write-Host '$' -ForegroundColor $dollarColor -NoNewline
 
 		# Very *very* controversial -- different pascalCaseWordsAreDifferentColors !!
-		Show-Name ($scrap.Substring(1)) -ForegroundColor $tokenColor -SecondForeGroundColor $secondTokenColor -NoNewline -DebugMode $debugMode
+		Show-Name ($scrap.Substring(1)) -ForegroundColor $tokenColor -SecondForeGroundColor $secondTokenColor -NoNewline
 	}
 	elseif ($token.Kind -eq [System.Management.Automation.Language.TokenKind]::DollarParen -and
 		$scrap -like '$*') {
@@ -59,9 +59,7 @@ function Write-Scrap($scrap, $token, $debugMode) {
 		# Controversial: Write quote characters at start and end of strings in a different color.
 		# Even VS Code doesn't attempt this.
 
-		if ($debugMode) {
-			Write-Host "<# tk: $($token.Kind), Tf: $($token.TokenFlags) #>" -f DarkCyan -n;
-		}
+		Write-Debug "<# tk: $($token.Kind), Tf: $($token.TokenFlags) #>"
 
 		if ($scrap -like '"*' -or $scrap -like '''*' -or $scrap -like '@*') {
 			# Starts with a quote, or a here-string '@' -- write the start character in special color
@@ -87,9 +85,7 @@ function Write-Scrap($scrap, $token, $debugMode) {
 	}
 	else {
 		# Regular way to write a token in a single color:
-		if ($debugMode) {
-			Write-Host "<# tk: $($token.Kind), Tf:  $($token.TokenFlags) #>" -f DarkGreen -n;
-		}
+		Write-Debug "<# tk: $($token.Kind), Tf:  $($token.TokenFlags) #>";
 		Write-Host ($scrap) -ForegroundColor $tokenColor -NoNewline;
 	}
 
@@ -106,10 +102,7 @@ function Show-Token {
 			HelpMessage = 'Tokens to be highlighted',
 			Position = 0)]
 		[System.Management.Automation.Language.Token[]]$Tokens,
-
-		$charNumX,
-
-		[bool]$debugMode = $false
+		$charNumX
 	)
 	Begin {
 		$charNum = $host.UI.RawUI.CursorPosition.X;
@@ -128,7 +121,6 @@ function Show-Token {
 	}
 	Process {
 		ForEach ($token in $tokens) {
-			#$tokenColor = (Get-TokenColor $token.Kind $token.TokenFlags $debugMode);
 			if ($token.Extent.StartLineNumber -gt $lineNum) {
 				$charNum = 1;
 			}
@@ -167,7 +159,7 @@ function Show-Token {
 						# write the between:
 						if ($token.Text.length -ge ($innerToken.Extent.StartOffset - $tokenStartOffset)) {
 							#Write-Host ($token.Text.Substring($upTo - $tokenStartOffset, $innerToken.Extent.StartOffset - $upTo)) -f $tokenColor -n;
-							Write-Scrap ($token.Text.Substring($upTo - $tokenStartOffset, $innerToken.Extent.StartOffset - $upTo)) $token $debugMode;
+							Write-Scrap ($token.Text.Substring($upTo - $tokenStartOffset, $innerToken.Extent.StartOffset - $upTo)) $token;
 						}
 						else {
 							#Write-Host "XX" -f red -n; (wonder if this is end of input?)
@@ -178,17 +170,17 @@ function Show-Token {
 					# In the comment above, `t1` was simply "$myName" -- but it could be a complex
 					# expression containing its own nested tokens... e.g. "$($myName)" (and much much more!)
 					# So we need to recurse, and have show-token show that t1...
-					Show-Token $innerToken -charNumX:$innerToken.Extent.StartColumnNumber -debugMode:$debugMode;
+					Show-Token $innerToken -charNumX:$innerToken.Extent.StartColumnNumber;
 					$upTo = $innerToken.Extent.EndOffset;
 				}
 
 				if ($upTo -lt ($token.Text.Length + $tokenStartOffset)) {
 					# write the 'after' (see comment section above)
-					Write-Scrap $token.Text.Substring($upTo - $tokenStartOffset) $token $debugMode;
+					Write-Scrap $token.Text.Substring($upTo - $tokenStartOffset) $token;
 				}
 			}
 			else {
-				Write-Scrap $token.Text $token $debugMode;
+				Write-Scrap $token.Text $token;
 			}
 
 			$lineNum = $token.Extent.EndLineNumber;
