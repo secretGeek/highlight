@@ -6,13 +6,15 @@ Here we have a PowerShell module for syntax highlighting PowerShell code, using 
 
 ## Usage
 
-Import the module:
+Install the module from PowerShellGallery:
 
-	Import-Module .\NimbleHighlight.psd1
+	Install-Module -Name NimbleHighlight
 
-(Coming soon to PowerShellGallery, then it will be: `Import-Module NimbleHighlight`)
+Then Import the module to make it available in your session:
 
-Then call:
+	Import-Module NimbleHighlight
+
+Use it like so:
 
 	Show-Code 'dir | % { $_.Name }'
 
